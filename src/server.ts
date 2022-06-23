@@ -1,0 +1,33 @@
+import fastifyAutoload from '@fastify/autoload';
+import fastifySwagger from '@fastify/swagger';
+import { ajvTypeBoxPlugin, TypeBoxTypeProvider } from '@fastify/type-provider-typebox';
+import fastify from 'fastify';
+import { join } from 'path';
+
+
+export const server = fastify({
+	logger: true,
+	ajv: {
+		customOptions: {
+			removeAdditional: 'all',
+			ownProperties: true,
+		},
+		plugins: [ajvTypeBoxPlugin],
+	},
+}).withTypeProvider<TypeBoxTypeProvider>();
+
+server.register(fastifySwagger, {
+	routePrefix: '/lib',
+	exposeRoute: true,
+	mode: 'dynamic',
+	openapi: {
+		info: {
+			title: 'Library Management System',
+			version: '0.0.1',
+		},
+	},
+});
+
+server.register(fastifyAutoload, {
+	dir: join(__dirname, 'routs'),
+});
